@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { FC, useCallback, useState } from "react";
 import {
   View,
   Text,
@@ -8,18 +8,18 @@ import {
   Pressable,
   useColorScheme,
   StyleSheet,
+  SafeAreaView,
 } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import StyledModal from "@/components/StyledModal/StyledModal";
-import { useUniversities } from "@/hooks/useUniversities";
 import StyledPicker from "@/components/StyledPicker/StyledPicker";
+import { useUniversities } from "@/hooks/useUniversities";
+import { useFavorites } from "@/hooks/FavoritesContext";
 import { IUniversity } from "@/.expo/types/University";
-import { useFavorites } from "@/hooks/context"; // Import the custom hook for favorites
+import { Colors } from "@/constants/Colors";
 
-const BrowseScreen = () => {
+const BrowseScreen: FC = () => {
   const colorScheme = useColorScheme();
-
-  // Use the useUniversities hook for university data
   const {
     filteredUniversities,
     isLoading,
@@ -32,7 +32,6 @@ const BrowseScreen = () => {
     setSelectedCountry,
   } = useUniversities();
 
-  // Use the useFavorites hook for managing favorite universities
   const { favoriteUniversities, toggleFavorite } = useFavorites();
 
   const [modalVisible, setModalVisible] = useState<boolean>(false);
@@ -60,7 +59,7 @@ const BrowseScreen = () => {
           )}
         </Pressable>
         <Pressable
-          onPress={() => toggleFavorite(item)} // Use the toggleFavorite from context
+          onPress={() => toggleFavorite(item)}
           style={styles.favoriteIconContainer}
         >
           <MaterialIcons
@@ -82,21 +81,30 @@ const BrowseScreen = () => {
     container: {
       flex: 1,
       paddingHorizontal: 10,
-      backgroundColor: colorScheme === "dark" ? "#121212" : "#fff",
+      backgroundColor:
+        colorScheme === "dark"
+          ? Colors.dark.background
+          : Colors.light.background,
     },
     searchInput: {
       borderWidth: 1,
-      borderColor: colorScheme === "dark" ? "#f0f0f0" : "#333",
+      borderColor:
+        colorScheme === "dark"
+          ? Colors.light.background
+          : Colors.dark.background,
       marginBottom: 10,
       padding: 10,
       fontSize: 14,
       borderRadius: 5,
-      color: colorScheme === "dark" ? "#f0f0f0" : "#333",
+      color: colorScheme === "dark" ? Colors.light.text : Colors.dark.text,
     },
     itemContainer: {
       paddingVertical: 10,
       borderBottomWidth: 1,
-      borderColor: colorScheme === "dark" ? "#444" : "#ddd",
+      borderColor:
+        colorScheme === "dark"
+          ? Colors.dark.background
+          : Colors.dark.background,
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
@@ -108,13 +116,19 @@ const BrowseScreen = () => {
     universityName: {
       fontSize: 18,
       fontWeight: "bold",
-      color: colorScheme === "dark" ? "#f0f0f0" : "#333",
+      color: colorScheme === "dark" ? Colors.dark.text : Colors.light.text,
+    },
+    screenTitle: {
+      fontSize: 24,
+      fontWeight: "bold",
+      textAlign: "center",
+      color: colorScheme === "dark" ? Colors.dark.text : Colors.light.text,
     },
     universityCountry: {
-      color: colorScheme === "dark" ? "#bbb" : "#555",
+      color: colorScheme === "dark" ? Colors.dark.text : Colors.light.text,
     },
     universityState: {
-      color: colorScheme === "dark" ? "#bbb" : "#555",
+      color: colorScheme === "dark" ? Colors.dark.text : Colors.light.text,
     },
     favoriteIconContainer: {
       justifyContent: "center",
@@ -130,18 +144,25 @@ const BrowseScreen = () => {
       fontWeight: "bold",
       textAlign: "center",
       width: "80%",
-      color: colorScheme === "dark" ? "#bbb" : "#555",
+      color: colorScheme === "dark" ? Colors.dark.text : Colors.light.text,
+    },
+
+    titleContainer: {
+      paddingTop: 10,
+      paddingBottom: 15,
     },
   });
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.titleContainer}>
+        <Text style={styles.screenTitle}>Universities</Text>
+      </View>
       <StyledPicker
         selectedValue={selectedCountry}
         onValueChange={(value) => setSelectedCountry(value)}
         countries={availableCountries}
       />
-
       <TextInput
         placeholder="Search"
         value={searchTerm}
@@ -175,7 +196,7 @@ const BrowseScreen = () => {
         university={selectedUniversity}
         onClose={closeModal}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 

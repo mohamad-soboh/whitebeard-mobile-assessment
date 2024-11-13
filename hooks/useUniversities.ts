@@ -12,7 +12,9 @@ export const useUniversities = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [selectedCountry, setSelectedCountry] = useState<string>("");
-  const [availableCountries, setAvailableCountries] = useState<string[]>([]);
+  const [availableCountries, setAvailableCountries] = useState<
+    { label: string; value: string }[]
+  >([]);
 
   // Function to load all universities
   const loadAllUniversities = async () => {
@@ -23,26 +25,40 @@ export const useUniversities = () => {
       const response = await axios.get(
         "http://universities.hipolabs.com/search"
       );
-      const universitiesData = response.data;
+      const universitiesData: IUniversity[] = response.data;
+
+      universitiesData.sort((a, b) => a.name.localeCompare(b.name));
       setAllUniversities(universitiesData);
 
+      // Extract unique countries and sort them alphabetically
       const countriesList = [
         ...new Set(
           universitiesData.map(
             (university: { country: string }) => university.country
           )
         ),
-      ] as string[];
-      countriesList.sort((a, b) => a.localeCompare(b));
-      setAvailableCountries(countriesList);
+      ];
+
+     
+      const availableCountries = [
+        { label: "All Countries", value: "" },
+        ...countriesList
+          .sort((a, b) => a.localeCompare(b))
+          .map((country) => ({
+            label: country, 
+            value: country,
+          })),
+      ];
+
+      setAvailableCountries(availableCountries); 
 
       // If there is a selected country in AsyncStorage, load universities for that country
       const savedCountry = await AsyncStorage.getItem("selectedCountry");
       if (savedCountry) {
         setSelectedCountry(savedCountry);
-        loadUniversitiesByCountry(savedCountry); // Load universities for saved country
+        loadUniversitiesByCountry(savedCountry);
       } else {
-        setUniversitiesByCountry(universitiesData); // Set all universities initially
+        setUniversitiesByCountry(universitiesData);
       }
     } catch (err) {
       setErrorMessage(
@@ -65,7 +81,9 @@ export const useUniversities = () => {
           params: { country },
         }
       );
-      const universitiesData = response.data;
+      const universitiesData: IUniversity[] = response.data;
+
+      universitiesData.sort((a, b) => a.name.localeCompare(b.name));
       setUniversitiesByCountry(universitiesData);
     } catch (err) {
       setErrorMessage(
@@ -83,18 +101,16 @@ export const useUniversities = () => {
     loadUniversitiesByCountry(country); // Trigger the university reload for the selected country
   };
 
-  // Reload universities based on the selected country
   const reloadUniversities = useCallback(() => {
     if (selectedCountry === "") {
-      loadAllUniversities(); // Load all universities if no country is selected
+      loadAllUniversities();
     } else {
-      loadUniversitiesByCountry(selectedCountry); // Load universities for the selected country
+      loadUniversitiesByCountry(selectedCountry); 
     }
   }, [selectedCountry]);
 
-  // Initial load on component mount
   useEffect(() => {
-    loadAllUniversities(); // This will fetch all universities and set the countries list
+    loadAllUniversities();
   }, []);
 
   // Function to filter universities based on search term

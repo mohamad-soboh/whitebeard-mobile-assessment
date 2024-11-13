@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import {
   View,
   Text,
@@ -9,16 +9,21 @@ import {
   Alert,
   SafeAreaView,
 } from "react-native";
+import { Swipeable } from "react-native-gesture-handler";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { IUniversity } from "@/.expo/types/University";
-import { Swipeable } from "react-native-gesture-handler";
-import { useFavorites } from "@/hooks/context"; 
+import { useFavorites } from "@/hooks/FavoritesContext";
+import StyledModal from "@/components/StyledModal/StyledModal"; 
+import { Colors } from "@/constants/Colors";
 
 const FavoritesScreen = () => {
   const colorScheme = useColorScheme();
   const { favoriteUniversities, toggleFavorite } = useFavorites();
 
-  // Remove university from favorites
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [selectedUniversity, setSelectedUniversity] =
+    useState<IUniversity | null>(null);
+
   const handleRemoveFavorite = (university: IUniversity) => {
     Alert.alert(
       "Remove from favorites",
@@ -36,11 +41,20 @@ const FavoritesScreen = () => {
     );
   };
 
-  // Render each university item with a swipeable gesture to remove it
+  const openModal = (university: IUniversity) => {
+    setSelectedUniversity(university);
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+    setSelectedUniversity(null);
+  };
+
   const renderItem = useCallback(
     ({ item }: { item: IUniversity }) => {
       return (
-        <SafeAreaView style={{ flex: 1 }}>
+        <View style={styles.itemWrapper}>
           <Swipeable
             renderRightActions={() => (
               <Pressable
@@ -48,18 +62,26 @@ const FavoritesScreen = () => {
                 style={[
                   styles.deleteButton,
                   {
-                    backgroundColor:
-                      colorScheme === "dark" ? "#d9534f" : "#c9302c",
+                    backgroundColor: "#d9534f",
                   },
                 ]}
               >
-                <MaterialIcons name="delete" size={28} color="white" />
+                <MaterialIcons
+                  name="delete"
+                  size={28}
+                  color={Colors.light.background}
+                />
               </Pressable>
             )}
           >
             <View style={styles.itemContainer}>
-              <Pressable style={styles.textContainer}>
-                <Text style={styles.universityName}>{item.name}</Text>
+              <Pressable
+                style={styles.textContainer}
+                onPress={() => openModal(item)}
+              >
+                <Text style={styles.universityName} numberOfLines={1}>
+                  {item.name}
+                </Text>
                 <Text style={styles.universityCountry}>{item.country}</Text>
                 {item["state-province"] && (
                   <Text style={styles.universityState}>
@@ -69,7 +91,7 @@ const FavoritesScreen = () => {
               </Pressable>
             </View>
           </Swipeable>
-        </SafeAreaView>
+        </View>
       );
     },
     [favoriteUniversities, colorScheme, handleRemoveFavorite]
@@ -78,13 +100,30 @@ const FavoritesScreen = () => {
   const styles = StyleSheet.create({
     container: {
       flex: 1,
+      backgroundColor:
+        colorScheme === "dark"
+          ? Colors.dark.background
+          : Colors.light.background,
+    },
+    title: {
+      fontSize: 24,
+      fontWeight: "bold",
+      textAlign: "center",
+      marginVertical: 20,
+      color:
+        colorScheme === "dark"
+          ? Colors.light.background
+          : Colors.dark.background,
+    },
+    itemWrapper: {
+      flex: 1,
       paddingHorizontal: 10,
-      backgroundColor: colorScheme === "dark" ? "#121212" : "#fff",
     },
     itemContainer: {
       paddingVertical: 10,
       borderBottomWidth: 1,
-      borderColor: colorScheme === "dark" ? "#444" : "#ddd",
+      borderColor:
+        colorScheme === "dark" ? Colors.dark.text : Colors.light.text,
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
@@ -96,18 +135,18 @@ const FavoritesScreen = () => {
     universityName: {
       fontSize: 18,
       fontWeight: "bold",
-      color: colorScheme === "dark" ? "#f0f0f0" : "#333",
+      color: colorScheme === "dark" ? Colors.dark.text : Colors.light.text,
     },
     universityCountry: {
-      color: colorScheme === "dark" ? "#bbb" : "#555",
+      color: colorScheme === "dark" ? Colors.dark.text : Colors.light.text,
     },
     universityState: {
-      color: colorScheme === "dark" ? "#bbb" : "#555",
+      color: colorScheme === "dark" ? Colors.dark.text : Colors.light.text,
     },
     deleteButton: {
       justifyContent: "center",
       alignItems: "center",
-      width: 100,
+      width: "20%",
       height: "100%",
       borderRadius: 5,
       paddingHorizontal: 15,
@@ -123,13 +162,13 @@ const FavoritesScreen = () => {
       width: "80%",
       lineHeight: 32,
       textAlign: "center",
-      color: colorScheme === "dark" ? "#bbb" : "#555",
+      color: colorScheme === "dark" ? Colors.dark.text : Colors.light.text,
     },
   });
 
-  // Conditionally render the FlatList or an empty message
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.title}>Favorite Universities</Text>
       {favoriteUniversities.length === 0 ? (
         <View style={styles.emptyMessageContainer}>
           <Text style={styles.emptyMessage}>
@@ -145,7 +184,14 @@ const FavoritesScreen = () => {
           }
         />
       )}
-    </View>
+
+      {/* Modal to show university details */}
+      <StyledModal
+        visible={modalVisible}
+        university={selectedUniversity}
+        onClose={closeModal}
+      />
+    </SafeAreaView>
   );
 };
 

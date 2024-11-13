@@ -4,6 +4,7 @@ import React from "react";
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
+import { MaterialIcons } from "@expo/vector-icons";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -30,10 +31,10 @@ export default function TabLayout() {
       <Tabs.Screen
         name="FavoritesScreen"
         options={{
-          title: "Explore",
+          title: "Favorites",
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon
-              name={focused ? "code-slash" : "code-slash-outline"}
+            <MaterialIcons
+              name={focused ? "favorite" : "favorite-border"}
               color={color}
             />
           ),
