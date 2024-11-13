@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { useColorScheme } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
-import AntDesign from "@expo/vector-icons/AntDesign";
 import { Colors } from "@/constants/Colors";
 
 interface CountryPickerProps {

@@ -14,7 +14,7 @@
    The following libraries were added to ensure the app works properly:
 
 - **`@react-native-async-storage/async-storage`**
-- **`@react-native-picker/picker`**
+- **`react-native-element-dropdown`**
 - **`axios`**
 - **`react-native-webview`**
 
