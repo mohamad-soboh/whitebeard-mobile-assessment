@@ -80,7 +80,6 @@ const BrowseScreen: FC = () => {
   const styles = StyleSheet.create({
     container: {
       flex: 1,
-      paddingHorizontal: 10,
       backgroundColor:
         colorScheme === "dark"
           ? Colors.dark.background
@@ -96,7 +95,7 @@ const BrowseScreen: FC = () => {
       padding: 10,
       fontSize: 14,
       borderRadius: 5,
-      color: colorScheme === "dark" ? Colors.light.text : Colors.dark.text,
+      color: colorScheme === "dark" ? Colors.dark.text : Colors.light.text,
     },
     itemContainer: {
       paddingVertical: 10,
@@ -135,7 +134,7 @@ const BrowseScreen: FC = () => {
       alignItems: "center",
     },
     fetchStateContainer: {
-      flex: 1,
+      height: "100%",
       alignItems: "center",
       justifyContent: "center",
     },
@@ -146,56 +145,76 @@ const BrowseScreen: FC = () => {
       width: "80%",
       color: colorScheme === "dark" ? Colors.dark.text : Colors.light.text,
     },
+    reloadButton: {
+      marginTop: 20,
+      padding: 10,
+      backgroundColor:
+        colorScheme === "dark" ? Colors.dark.text : Colors.light.text,
+      borderRadius: 5,
+    },
+    reloadButtonText: {
+      color: "#fff",
+      fontSize: 16,
+      textAlign: "center",
+    },
 
     titleContainer: {
       paddingTop: 10,
       paddingBottom: 15,
     },
+    screenChildrenContainer: {
+      paddingHorizontal: 10,
+    },
   });
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.titleContainer}>
-        <Text style={styles.screenTitle}>Universities</Text>
-      </View>
-      <StyledPicker
-        selectedValue={selectedCountry}
-        onValueChange={(value) => setSelectedCountry(value)}
-        countries={availableCountries}
-      />
-      <TextInput
-        placeholder="Search"
-        value={searchTerm}
-        onChangeText={onSearchChange}
-        style={styles.searchInput}
-      />
-
-      {isLoading ? (
-        <View style={styles.fetchStateContainer}>
-          <ActivityIndicator size="large" />
+      <View style={styles.screenChildrenContainer}>
+        <View style={styles.titleContainer}>
+          <Text style={styles.screenTitle}>Universities</Text>
         </View>
-      ) : errorMessage ? (
-        <View style={styles.fetchStateContainer}>
-          <Text style={styles.errorText}>{errorMessage}</Text>
-        </View>
-      ) : (
-        <FlatList
-          showsVerticalScrollIndicator={false}
-          data={filteredUniversities}
-          renderItem={renderItem}
-          onRefresh={reloadUniversities}
-          refreshing={isLoading}
-          keyExtractor={(item, index) =>
-            `${item.alpha_two_code}-${item.name}-${index}`
-          }
+        <StyledPicker
+          selectedValue={selectedCountry}
+          onValueChange={(value) => setSelectedCountry(value)}
+          countries={availableCountries}
         />
-      )}
+        <TextInput
+          placeholder="Search"
+          value={searchTerm}
+          onChangeText={onSearchChange}
+          style={styles.searchInput}
+        />
 
-      <StyledModal
-        visible={modalVisible}
-        university={selectedUniversity}
-        onClose={closeModal}
-      />
+        {isLoading ? (
+          <View style={styles.fetchStateContainer}>
+            <ActivityIndicator size="large" />
+          </View>
+        ) : errorMessage ? (
+          <View style={styles.fetchStateContainer}>
+            <Text style={styles.errorText}>{errorMessage}</Text>
+            <Pressable onPress={reloadUniversities} style={styles.reloadButton}>
+              <Text style={styles.reloadButtonText}>Reload</Text>
+            </Pressable>
+          </View>
+        ) : (
+          <FlatList
+            showsVerticalScrollIndicator={false}
+            data={filteredUniversities}
+            renderItem={renderItem}
+            onRefresh={reloadUniversities}
+            refreshing={isLoading}
+            keyExtractor={(item, index) =>
+              `${item.alpha_two_code}-${item.name}-${index}`
+            }
+          />
+        )}
+
+        <StyledModal
+          visible={modalVisible}
+          university={selectedUniversity}
+          onClose={closeModal}
+        />
+      </View>
     </SafeAreaView>
   );
 };

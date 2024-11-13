@@ -15,6 +15,7 @@ export const useUniversities = () => {
   const [availableCountries, setAvailableCountries] = useState<
     { label: string; value: string }[]
   >([]);
+  const TIMEOUT = 10000; // Timeout in milliseconds (10 seconds)
 
   // Function to load all universities
   const loadAllUniversities = async () => {
@@ -23,7 +24,10 @@ export const useUniversities = () => {
 
     try {
       const response = await axios.get(
-        "http://universities.hipolabs.com/search"
+        "http://universities.hipolabs.com/search",
+        {
+          timeout: TIMEOUT,
+        }
       );
       const universitiesData: IUniversity[] = response.data;
 
@@ -39,18 +43,17 @@ export const useUniversities = () => {
         ),
       ];
 
-     
       const availableCountries = [
         { label: "All Countries", value: "" },
         ...countriesList
           .sort((a, b) => a.localeCompare(b))
           .map((country) => ({
-            label: country, 
+            label: country,
             value: country,
           })),
       ];
 
-      setAvailableCountries(availableCountries); 
+      setAvailableCountries(availableCountries);
 
       // If there is a selected country in AsyncStorage, load universities for that country
       const savedCountry = await AsyncStorage.getItem("selectedCountry");
@@ -79,6 +82,7 @@ export const useUniversities = () => {
         "http://universities.hipolabs.com/search",
         {
           params: { country },
+          timeout: TIMEOUT,
         }
       );
       const universitiesData: IUniversity[] = response.data;
@@ -105,7 +109,7 @@ export const useUniversities = () => {
     if (selectedCountry === "") {
       loadAllUniversities();
     } else {
-      loadUniversitiesByCountry(selectedCountry); 
+      loadUniversitiesByCountry(selectedCountry);
     }
   }, [selectedCountry]);
 

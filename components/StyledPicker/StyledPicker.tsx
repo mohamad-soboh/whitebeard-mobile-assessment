@@ -15,7 +15,6 @@ const CountryPicker: React.FC<CountryPickerProps> = ({
   onValueChange,
   countries,
 }) => {
-  const [value, setValue] = useState<string | null>(selectedValue);
   const [isFocus, setIsFocus] = useState(false);
   const colorScheme = useColorScheme();
 
@@ -68,7 +67,7 @@ const CountryPicker: React.FC<CountryPickerProps> = ({
         colorScheme === "dark"
           ? Colors.dark.background
           : Colors.light.background,
-      color: colorScheme === "dark" ? Colors.light.text : Colors.dark.text,
+      color: colorScheme === "dark" ? Colors.dark.text : Colors.dark.text,
     },
     dropdownContainer: {
       backgroundColor:
@@ -109,11 +108,10 @@ const CountryPicker: React.FC<CountryPickerProps> = ({
         valueField="value"
         placeholder={"Select Country"}
         searchPlaceholder="Search..."
-        value={value}
+        value={selectedValue} // Use selectedValue directly here
         onFocus={() => setIsFocus(true)}
         onBlur={() => setIsFocus(false)}
         onChange={(item) => {
-          setValue(item.value);
           onValueChange(item.value); // Notify parent with the selected value
           setIsFocus(false);
         }}
